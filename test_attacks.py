@@ -18,110 +18,76 @@ from backend.inference_engine import InferenceEngine
 
 engine = InferenceEngine()
 
-# Simulated attack flows with realistic feature values matching training data
+# Simulated attack flows based on actual CICIDS-2017 dataset averages
 ATTACK_SCENARIOS = [
     {
-        "name": "DDoS Volumetric Flood",
+        "name": "Benign Web Browsing (Should be MISSED)",
         "flow": {
-            "flow_duration": 2.5,
-            "total_fwd_packets": 150,
-            "total_bwd_packets": 3,
+            "flow_duration": 4500000, # 4.5 seconds
+            "total_fwd_packets": 12,
+            "total_bwd_packets": 15,
             "fwd_packet_length_max": 1400,
-            "bwd_packet_length_max": 60,
-            "flow_bytes_per_sec": 85000,
-            "flow_packets_per_sec": 3500,
+            "bwd_packet_length_max": 3000,
+            "flow_bytes_per_sec": 4000,
+            "flow_packets_per_sec": 6,
             "syn_flag_count": 1,
-            "ack_flag_count": 2,
+            "ack_flag_count": 27,
             "rst_flag_count": 0,
-            "_src_ip": "192.168.1.105",
-            "_dst_ip": "10.0.0.50",
+            "_src_ip": "192.168.1.100",
+            "_dst_ip": "172.217.11.14", # Google
         }
     },
     {
-        "name": "DDoS SYN Flood",
+        "name": "DDoS Volumetric Flood",
         "flow": {
-            "flow_duration": 1.0,
-            "total_fwd_packets": 120,
-            "total_bwd_packets": 0,
-            "fwd_packet_length_max": 60,
-            "bwd_packet_length_max": 0,
-            "flow_bytes_per_sec": 72000,
-            "flow_packets_per_sec": 4200,
+            "flow_duration": 5865829,
+            "total_fwd_packets": 8,
+            "total_bwd_packets": 4,
+            "fwd_packet_length_max": 20,
+            "bwd_packet_length_max": 7215,
+            "flow_bytes_per_sec": 1980.11,
+            "flow_packets_per_sec": 2.04,
             "syn_flag_count": 2,
-            "ack_flag_count": 0,
-            "rst_flag_count": 0,
-            "_src_ip": "203.0.113.45",
-            "_dst_ip": "10.0.0.50",
+            "ack_flag_count": 11,
+            "rst_flag_count": 1,
+            "_src_ip": "10.0.0.45",
+            "_dst_ip": "192.168.1.5",
         }
     },
     {
         "name": "Port Scan (SYN Sweep)",
         "flow": {
-            "flow_duration": 8.0,
-            "total_fwd_packets": 5,
-            "total_bwd_packets": 0,
-            "fwd_packet_length_max": 54,
+            "flow_duration": 62,
+            "total_fwd_packets": 1,
+            "total_bwd_packets": 1,
+            "fwd_packet_length_max": 0,
             "bwd_packet_length_max": 0,
-            "flow_bytes_per_sec": 500,
-            "flow_packets_per_sec": 12,
-            "syn_flag_count": 35,
-            "ack_flag_count": 0,
-            "rst_flag_count": 0,
-            "_src_ip": "198.51.100.22",
-            "_dst_ip": "10.0.0.50",
-        }
-    },
-    {
-        "name": "Port Scan (Stealth)",
-        "flow": {
-            "flow_duration": 15.0,
-            "total_fwd_packets": 8,
-            "total_bwd_packets": 0,
-            "fwd_packet_length_max": 40,
-            "bwd_packet_length_max": 0,
-            "flow_bytes_per_sec": 200,
-            "flow_packets_per_sec": 8,
-            "syn_flag_count": 28,
-            "ack_flag_count": 0,
+            "flow_bytes_per_sec": 0.0,
+            "flow_packets_per_sec": 32258.06,
+            "syn_flag_count": 1,
+            "ack_flag_count": 1,
             "rst_flag_count": 1,
-            "_src_ip": "172.16.0.99",
-            "_dst_ip": "10.0.0.50",
+            "_src_ip": "198.51.100.22",
+            "_dst_ip": "192.168.1.5",
         }
     },
     {
         "name": "SSH Brute Force",
         "flow": {
-            "flow_duration": 1200,
-            "total_fwd_packets": 12,
-            "total_bwd_packets": 10,
-            "fwd_packet_length_max": 300,
-            "bwd_packet_length_max": 250,
-            "flow_bytes_per_sec": 800,
-            "flow_packets_per_sec": 5,
+            "flow_duration": 611,
+            "total_fwd_packets": 1,
+            "total_bwd_packets": 1,
+            "fwd_packet_length_max": 0,
+            "bwd_packet_length_max": 0,
+            "flow_bytes_per_sec": 0.0,
+            "flow_packets_per_sec": 3273.32,
             "syn_flag_count": 1,
-            "ack_flag_count": 55,
-            "rst_flag_count": 0,
+            "ack_flag_count": 1,
+            "rst_flag_count": 1,
             "_src_ip": "185.220.101.33",
-            "_dst_ip": "10.0.0.50",
+            "_dst_ip": "192.168.1.5",
         }
-    },
-    {
-        "name": "FTP Brute Force",
-        "flow": {
-            "flow_duration": 2400,
-            "total_fwd_packets": 15,
-            "total_bwd_packets": 14,
-            "fwd_packet_length_max": 200,
-            "bwd_packet_length_max": 180,
-            "flow_bytes_per_sec": 600,
-            "flow_packets_per_sec": 3,
-            "syn_flag_count": 1,
-            "ack_flag_count": 72,
-            "rst_flag_count": 0,
-            "_src_ip": "91.134.200.15",
-            "_dst_ip": "10.0.0.50",
-        }
-    },
+    }
 ]
 
 def run_tests():

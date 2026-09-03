@@ -91,17 +91,17 @@ class FlowTracker:
                 
         for key in expired_keys:
             flow = self.flows.pop(key)
-            duration = max(flow['last_time'] - flow['start_time'], 0.0001) # Avoid DivByZero
+            duration_sec = max(flow['last_time'] - flow['start_time'], 0.0001) # Avoid DivByZero
             total_packets = flow['total_fwd_packets'] + flow['total_bwd_packets']
             
             features = {
-                'flow_duration': duration,
+                'flow_duration': duration_sec * 1000000, # Convert to microseconds for ML model
                 'total_fwd_packets': flow['total_fwd_packets'],
                 'total_bwd_packets': flow['total_bwd_packets'],
                 'fwd_packet_length_max': flow['fwd_packet_length_max'],
                 'bwd_packet_length_max': flow['bwd_packet_length_max'],
-                'flow_bytes_per_sec': flow['total_bytes'] / duration,
-                'flow_packets_per_sec': total_packets / duration,
+                'flow_bytes_per_sec': flow['total_bytes'] / duration_sec,
+                'flow_packets_per_sec': total_packets / duration_sec,
                 'syn_flag_count': flow['syn_flag_count'],
                 'ack_flag_count': flow['ack_flag_count'],
                 'rst_flag_count': flow['rst_flag_count'],
