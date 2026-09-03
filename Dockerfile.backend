@@ -1,0 +1,17 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install native dependencies required for Scapy real-time tracking
+RUN apt-get update && apt-get install -y libpcap-dev && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --default-timeout=1000 --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Bootstrap dataset and train algorithms autonomously on build
+RUN python models/train_pipeline.py
+
+# Uvicorn runs as root strictly due to CAP_NET_RAW / CAP_NET_ADMIN socket restrictions
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]

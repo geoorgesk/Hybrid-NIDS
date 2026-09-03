@@ -1,0 +1,24 @@
+
+
+services:
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: hybrid-nids-backend
+    # Expose host network directly to container for true real-time packet interception
+    network_mode: "host"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: hybrid-nids-frontend
+    network_mode: "host"
+    depends_on:
+      - backend
+    restart: unless-stopped
