@@ -6,6 +6,10 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from typing import List
 from backend.packet_listener import PacketListener
 
+# Store alerts server-side so the dashboard can poll them reliably
+alert_store: List[dict] = []
+MAX_ALERTS = 200
+
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
@@ -31,7 +35,11 @@ start_time = time.time()
 loop = None
 
 def trigger_alert(alert: dict):
-    # Route cross-thread invocation to FastAPI's asyncio event loop
+    # Store alert server-side
+    alert_store.insert(0, alert)
+    if len(alert_store) > MAX_ALERTS:
+        alert_store.pop()
+    # Also broadcast via WebSocket
     if loop is not None and loop.is_running():
         asyncio.run_coroutine_threadsafe(manager.broadcast(alert), loop)
 
@@ -58,13 +66,23 @@ def get_metrics():
         "active_flows": len(listener.tracker.flows) if listener else 0
     }
 
+@app.get("/alerts")
+def get_alerts():
+    """Returns all stored alerts for dashboard polling."""
+    return alert_store
+
 @app.post("/test_alert")
 async def test_alert(alert: dict):
-    """Endpoint for the test script to push simulated attack alerts to the dashboard."""
+    """Endpoint for the test script to push simulated attack alerts."""
     if listener:
         listener.total_threats += 1
+    # Store server-side
+    alert_store.insert(0, alert)
+    if len(alert_store) > MAX_ALERTS:
+        alert_store.pop()
+    # Broadcast via WebSocket
     await manager.broadcast(alert)
-    return {"status": "alert_broadcast"}
+    return {"status": "alert_broadcast", "total_stored": len(alert_store)}
 
 @app.websocket("/ws/alerts")
 async def websocket_endpoint(websocket: WebSocket):
